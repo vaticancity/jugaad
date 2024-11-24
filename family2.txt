@@ -1,0 +1,66 @@
+:- initialization(main).
+
+% Define family relationships
+% parent(Child, Parent)
+parent(john, mary).   % John is a child of Mary
+parent(john, robert). % John is a child of Robert
+parent(susan, mary).  % Susan is a child of Mary
+parent(susan, robert).% Susan is a child of Robert
+parent(mary, elizabeth). % Mary is a child of Elizabeth
+parent(robert, elizabeth). % Robert is a child of Elizabeth
+parent(elizabeth, charles). % Elizabeth is a child of Charles
+parent(elizabeth, diana).   % Elizabeth is a child of Diana
+
+% Define gender-specific relationships
+father(X, Y) :- parent(Y, X), male(X).
+mother(X, Y) :- parent(Y, X), female(X).
+
+% Define grandparent relationship
+grandparent(X, Y) :- parent(Y, Z), parent(Z, X).
+
+% Define sibling relationship
+sibling(X, Y) :- parent(Z, X), parent(Z, Y), X \= Y.
+
+% Define male and female individuals
+male(robert).
+male(john).
+male(charles).
+male(diana).
+
+female(mary).
+female(susan).
+female(elizabeth).
+
+% Queries to find relations
+find_child(Parent, Child) :- parent(Child, Parent).
+find_parent(Child, Parent) :- parent(Parent, Child).
+find_father(Child, Parent) :- parent(Parent, Child), male(Parent).
+find_grandparent(Grandparent, Grandchild) :- grandparent(Grandparent, Grandchild).
+find_sibling(Sibling1, Sibling2) :- sibling(Sibling1, Sibling2).
+
+main :-
+    write('Family Tree Queries:'), nl,
+    write('1. Find children of Mary:'), nl,
+    find_child(mary, Child), write(Child), nl,
+    fail;  % Force backtracking to find all children
+    write('No more children.'), nl,
+
+    write('2. Find parents of John:'), nl,
+    find_parent(john, Parent), write(Parent), nl,
+    fail;  % Force backtracking to find all parents
+    write('No more parents.'), nl,
+
+    write('3. Find grandparents of John:'), nl,
+    find_grandparent(Grandparent, john), write(Grandparent), nl,
+    fail;  % Force backtracking to find all grandparents
+    write('No more grandparents.'), nl,
+
+    write('4. Find siblings of Susan:'), nl,
+    find_sibling(susan, Sibling), write(Sibling), nl,
+    fail;  % Force backtracking to find all siblings
+    write('No more siblings.'), nl,
+    
+    write('5. Find father of mary:'), nl,
+    find_father(mary, Parent), write(Parent), nl,
+    fail;  % Force backtracking to find all siblings
+    write('No more fathers.'), nl.
