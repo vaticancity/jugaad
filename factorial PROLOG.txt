@@ -1,0 +1,16 @@
+factorial(0, 1).
+
+% Recursive case: factorial of N is N * factorial of (N - 1)
+factorial(N, Result) :-
+    N > 0,
+    N1 is N - 1,
+    factorial(N1, SubResult),
+    Result is N * SubResult.
+
+% Main entry point
+:- initialization(main).
+
+main :-
+    N = 5, % Predefined number, you can change this to compute the factorial of any number
+    factorial(N, Fact),
+    write('Factorial of '), write(N), write(' is: '), write(Fact),nl.

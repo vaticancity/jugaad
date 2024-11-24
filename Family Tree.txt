@@ -1,0 +1,163 @@
+% Define males and females
+male(shripad).
+male(limbaji).
+male(arjuna).
+male(rajaram).
+male(uttam).
+male(ravindra).
+male(ashok).
+male(vineet).
+male(aniket).
+male(abhishek).
+male(rahul).
+male(sahil).
+male(aditya).
+male(om).
+male(pratik).
+male(chinmay).
+
+female(lata).
+female(daya).
+female(mukta).  
+female(vandana).
+female(kamal).
+female(sujata).
+female(sangeeta).
+female(sangita).
+female(rashmi).
+female(madhulekha).
+
+:- discontiguous nephew/2.
+:- discontiguous niece/2.
+
+
+% Define parent-child relationships
+parent(shripad, limbaji).
+parent(limbaji, arjuna).
+parent(limbaji, daya).
+parent(lata, arjuna).
+parent(lata, daya).
+parent(arjuna, rajaram).
+parent(arjuna, kamal).
+parent(arjuna, uttam).
+parent(arjuna, ravindra).
+parent(arjuna, sangita).  
+parent(mukta, rajaram).
+parent(mukta, kamal).
+parent(mukta, uttam).
+parent(mukta, ravindra).
+parent(mukta, sangita).  
+parent(rajaram, rashmi).  
+parent(rajaram, aniket).
+parent(rajaram, abhishek).
+parent(vandana, rashmi).  
+parent(vandana, aniket).
+parent(vandana, abhishek).
+parent(uttam, sahil).
+parent(uttam, aditya).
+parent(sujata, sahil).
+parent(sujata, aditya).
+parent(ravindra, madhulekha).
+parent(ravindra, om).
+parent(sangeeta, madhulekha).
+parent(sangeeta, om).
+parent(sangita, pratik).
+parent(sangita, chinmay).
+parent(ashok, pratik).
+parent(ashok, chinmay).
+parent(rashmi, rahul).
+parent(vineet, rahul).
+
+% Define marriage relationships
+married(limbaji, lata).
+married(arjuna, mukta). 
+married(rajaram, vandana).
+married(uttam, sujata).
+married(ravindra, sangeeta).
+married(ashok, sangita).
+married(vineet, rashmi). 
+
+% Define basic family relationships
+father(X, Y) :- male(X), parent(X, Y).
+mother(X, Y) :- female(X), parent(X, Y).
+child(X, Y) :- parent(Y, X).
+sibling(X, Y) :- parent(Z, X), parent(Z, Y), X \= Y.
+brother(X, Y) :- male(X), sibling(X, Y).
+sister(X, Y) :- female(X), sibling(X, Y).
+grandparent(X, Y) :- parent(X, Z), parent(Z, Y).
+grandfather(X, Y) :- male(X), grandparent(X, Y).
+grandmother(X, Y) :- female(X), grandparent(X, Y).
+
+wife(X, Y) :- female(X), male(Y), married(Y, X).
+husband(X, Y) :- male(X), female(Y), married(X, Y).
+
+% In-laws relationships
+brother_in_law(X, Y) :- husband(Y, Z), sibling(X, Z).
+sister_in_law(X, Y) :- wife(Y, Z), sibling(X, Z).
+
+cousin(X, Y) :- parent(A, X), parent(B, Y), sibling(A, B).
+paternal_uncle(X, Y) :- male(X), parent(Z, Y), brother(X, Z).
+maternal_uncle(X, Y) :- male(X), parent(Z, Y), sister(Z, X).
+paternal_aunt(X, Y) :- female(X), parent(Z, Y), sister(X, Z).
+maternal_aunt(X, Y) :- female(X), parent(Z, Y), brother(Z, X).
+great_grandfather(X, Y) :- male(X), parent(X, Z), grandparent(Z, Y).
+son(X, Y) :- male(X), child(X, Y).
+daughter(X, Y) :- female(X), child(X, Y).
+niece(Niece, UncleOrAunt) :- female(Niece), sibling(Parent, UncleOrAunt), child(Niece, Parent).
+nephew(Nephew, UncleOrAunt) :- male(Nephew), sibling(Parent, UncleOrAunt), child(Nephew, Parent).
+
+% Additional relationships
+son_in_law(X, Y) :- male(X), married(X, Daughter), child(Daughter, Y).
+daughter_in_law(X, Y) :- female(X), married(X, Son), child(Son, Y).
+uncle(X, Y) :- male(X), (paternal_uncle(X, Y) ; maternal_uncle(X, Y)).
+aunt(X, Y) :- female(X), (paternal_aunt(X, Y) ; maternal_aunt(X, Y)).
+great_aunt(X, Y) :- female(X), grandparent(Z, Y), sibling(X, Z).
+great_uncle(X, Y) :- male(X), grandparent(Z, Y), sibling(X, Z).
+
+% Find relations
+find_parents(Person, Parents) :- 
+    setof(P, parent(P, Person), Parents).
+
+find_grandparents(Person, Grandparents) :- 
+    setof(G, grandparent(G, Person), Grandparents).
+
+find_cousins(Person, Cousins) :- 
+    setof(C, cousin(Person, C), Cousins).
+
+% Define nephew and niece relationships
+nephew(Nephew, UncleOrAunt) :- male(Nephew), sibling(Parent, UncleOrAunt), child(Nephew, Parent).
+niece(Niece, UncleOrAunt) :- female(Niece), sibling(Parent, UncleOrAunt), child(Niece, Parent).
+
+% Extend find_relation/3 for nephew and niece
+find_relation(Person1, Person2, Relation) :- 
+    ( parent(Person1, Person2) -> Relation = 'parent'
+    ; parent(Person2, Person1) -> Relation = 'child'
+    ; grandparent(Person1, Person2) -> Relation = 'grandparent'
+    ; grandparent(Person2, Person1) -> Relation = 'grandchild'
+    ; great_grandfather(Person1, Person2) -> Relation = 'great-grandfather'
+    ; cousin(Person1, Person2) -> Relation = 'cousin'
+    ; sibling(Person1, Person2) -> Relation = 'sibling'
+    ; brother(Person1, Person2) -> Relation = 'brother'
+    ; sister(Person1, Person2) -> Relation = 'sister'
+    ; paternal_uncle(Person1, Person2) -> Relation = 'paternal uncle'
+    ; paternal_aunt(Person1, Person2) -> Relation = 'paternal aunt'
+    ; maternal_uncle(Person1, Person2) -> Relation = 'maternal uncle'
+    ; maternal_aunt(Person1, Person2) -> Relation = 'maternal aunt'
+    
+    % Add nephew and niece
+    ; nephew(Person1, Person2) -> Relation = 'nephew'
+    ; niece(Person1, Person2) -> Relation = 'niece'
+    
+    % In-law relationships
+    ; (parent(Person1, Child), married(Child, Person2)) -> Relation = 'daughter-in-law'
+    ; (parent(Person2, Child), married(Child, Person1)) -> Relation = 'father-in-law'
+    ; (parent(Person1, Child), married(Person2, Child)) -> Relation = 'son-in-law'
+    ; (parent(Person2, Child), married(Person1, Child)) -> Relation = 'mother-in-law'
+    
+    ; Relation = 'no direct relation'  % Default case if no relation is found
+    ).
+
+
+% Find spouse
+find_spouse(Person, Spouse) :- 
+    (wife(Spouse, Person) ; husband(Spouse, Person)).

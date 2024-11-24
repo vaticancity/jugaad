@@ -1,0 +1,23 @@
+% Base case: Fibonacci of 0 is 0
+fibonacci(0, 0).
+
+% Base case: Fibonacci of 1 is 1
+fibonacci(1, 1).
+
+% Recursive case: Fibonacci of N is Fibonacci(N-1) + Fibonacci(N-2)
+fibonacci(N, Result) :-
+    N > 1,
+    N1 is N - 1,
+    N2 is N - 2,
+    fibonacci(N1, Result1),
+    fibonacci(N2, Result2),
+    Result is Result1 + Result2.
+
+% Main entry point
+:- initialization(main).
+
+main :-
+    N = 6, % Predefined number, you can change this to compute the Fibonacci of any number
+    fibonacci(N, Fib),
+    write('Fibonacci of '), write(N), write(' is: '), write(Fib), nl,
+    halt.

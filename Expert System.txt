@@ -1,0 +1,55 @@
+% Declare dynamic predicates to store user answers
+:- dynamic(known/2).
+
+% Facts defining the traits of each character
+character(batman) :- superhero, has_gadgets, human.
+character(superman) :- superhero, has_super_strength, can_fly, has_laser_vision.
+character(iron_man) :- superhero, billionaire, smart, human.
+character(captain_america) :- superhero, has_shield, human, super_soldier.
+character(harry_potter) :- wizard, has_wand.
+character(hulk) :- superhero, has_super_strength, green.
+character(thanos) :- villain, has_infinity_gauntlet, has_super_strength.
+character(thor) :- superhero, god, has_hammer, can_fly.
+character(spider_man) :- superhero, has_spider_powers, human.
+character(hawkeye) :- superhero, human, has_bow_and_arrows.
+
+% Define traits as rules
+superhero :- verify('Is the character a superhero?').
+villain :- verify('Is the character a villain?').
+wizard :- verify('Is the character a wizard?').
+human :- verify('Is the character human?').
+green :- verify('Is the character green?').
+smart :- verify('Is the character known for being smart?').
+god :- verify('Is the character a god?').
+
+has_gadgets :- verify('Does the character use gadgets?').
+billionaire :- verify('Is the character a billionaire?').  % New trait for Iron Man
+has_super_strength :- verify('Does the character have super strength?').
+can_fly :- verify('Can the character fly?').
+has_laser_vision :- verify('Does the character have laser vision?').
+has_shield :- verify('Does the character use a shield?').
+has_hammer :- verify('Does the character wield a hammer?').
+has_spider_powers :- verify('Does the character have spider-like powers?').
+has_wand :- verify('Does the character use a wand?').
+has_infinity_gauntlet :- verify('Does the character have the Infinity Gauntlet?').
+has_bow_and_arrows :- verify('Does the character use a bow and arrows?').
+super_soldier :- verify('Is the character a super soldier?').
+
+% Input mechanism with memory to prevent repeated questions
+verify(Question) :-
+    (known(Question, Answer) -> 
+        Answer == yes; 
+        ask(Question)).
+
+ask(Question) :-
+    format('~w (yes/no): ', [Question]),
+    read(Response),
+    assertz(known(Question, Response)),
+    Response == yes.
+
+% Inference engine
+start :-
+    retractall(known(_, _)),  % Clear previous answers
+    (character(Character) ->
+        format('I think the character is: ~w!', [Character]);
+        write('I could not guess the character.')).
